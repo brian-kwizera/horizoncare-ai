@@ -1,5 +1,6 @@
 import re
 
+from document_chunker import chunk_documents
 from document_loader import load_documents
 
 
@@ -10,26 +11,34 @@ def tokenize(text: str) -> set[str]:
 
 def search_knowledge(query: str) -> list[dict]:
     query_words = tokenize(query)
+
     documents = load_documents()
+
+    chunks = chunk_documents(
+        documents,
+        max_words=100,
+        overlap=20,
+    )
 
     results = []
 
-    for document in documents:
-        content_words = tokenize(document["content"])
+    for chunk in chunks:
+        content_words = tokenize(chunk["content"])
 
         matches = len(query_words & content_words)
 
         if matches > 0:
             results.append(
                 {
-                    "filename": document["filename"],
-                    "content": document["content"],
+                    "chunk_id": chunk["chunk_id"],
+                    "filename": chunk["filename"],
+                    "content": chunk["content"],
                     "matches": matches,
                 }
             )
 
     results.sort(
-        key=lambda document: document["matches"],
+        key=lambda result: result["matches"],
         reverse=True,
     )
 

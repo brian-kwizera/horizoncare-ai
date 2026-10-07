@@ -8,3 +8,4 @@ def test_search_finds_malaria_document():
     assert len(results) >= 1
     assert results[0]["filename"] == "malaria.md"
     assert results[0]["matches"] > 0
+    assert "chunk_id" in results[0]
