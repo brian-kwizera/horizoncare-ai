@@ -1,7 +1,14 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-app = FastAPI()
+from dotenv import load_dotenv
+
+from ai_service import generate_answer
+
+
+load_dotenv(override=True)
+
+app = FastAPI(title="HorizonCare AI")
 
 
 class QuestionRequest(BaseModel):
@@ -17,7 +24,22 @@ def home():
 
 @app.post("/ask")
 def ask_question(request: QuestionRequest):
-    return {
-        "question": request.question,
-        "message": "HorizonCare received your question."
-    }
+    if not request.question.strip():
+        raise HTTPException(
+            status_code=400,
+            detail="Question cannot be empty."
+        )
+
+    try:
+        answer = generate_answer(request.question)
+
+        return {
+            "question": request.question,
+            "answer": answer
+        }
+
+    except Exception as error:
+        raise HTTPException(
+            status_code=500,
+            detail=f"AI request failed: {str(error)}"
+        )
