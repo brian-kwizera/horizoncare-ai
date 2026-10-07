@@ -1,16 +1,13 @@
-from vector_search import VectorKnowledgeSearch
+from database_retriever import search_database
 
 
 class KnowledgeRetriever:
-    def __init__(self):
-        self.searcher = VectorKnowledgeSearch()
-
     def search(
         self,
         query: str,
         top_k: int = 3,
     ) -> list[dict]:
-        return self.searcher.search(
+        return search_database(
             query,
             top_k=top_k,
         )
