@@ -3,12 +3,13 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
 from ai_service import generate_answer
-from knowledge_search import search_knowledge
+from retriever import KnowledgeRetriever
 
 
 load_dotenv(override=True)
 
 app = FastAPI(title="HorizonCare AI")
+retriever = KnowledgeRetriever()
 
 
 class QuestionRequest(BaseModel):
@@ -32,7 +33,10 @@ def ask_question(request: QuestionRequest):
 
     try:
         # Search the HorizonCare knowledge base
-        results = search_knowledge(request.question)
+        results = retriever.search(
+    request.question,
+    top_k=3,
+)
 
         # Build context for the AI service
         context = ""
