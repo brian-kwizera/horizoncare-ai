@@ -29,3 +29,5 @@ def test_ask():
 
     assert data["question"] == "What are the common symptoms of malaria?"
     assert "answer" in data
+    assert "sources" in data
+    assert "malaria.md" in data["sources"]  

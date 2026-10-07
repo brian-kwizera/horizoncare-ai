@@ -3,7 +3,10 @@ import os
 from openai import OpenAI
 
 
-def generate_answer(question: str) -> str:
+def generate_answer(
+    question: str,
+    context: str = "",
+) -> str:
     """
     Generate an answer using the configured AI mode.
 
@@ -14,9 +17,17 @@ def generate_answer(question: str) -> str:
     mode = os.getenv("AI_MODE", "mock").lower()
 
     if mode == "mock":
+        if context:
+            return (
+                "HorizonCare found relevant information in its "
+                "knowledge base.\n\n"
+                f"Question: {question}\n\n"
+                f"Retrieved information:\n{context}"
+            )
+
         return (
             "HorizonCare is currently running in local mock mode. "
-            "No external AI service was called.\n\n"
+            "No relevant knowledge was found.\n\n"
             f"Your question was: {question}"
         )
 
@@ -30,6 +41,16 @@ def generate_answer(question: str) -> str:
 
         client = OpenAI(api_key=api_key)
 
+        prompt = question
+
+        if context:
+            prompt = (
+                "Use the following retrieved healthcare information "
+                "as context when answering the user's question.\n\n"
+                f"CONTEXT:\n{context}\n\n"
+                f"QUESTION:\n{question}"
+            )
+
         response = client.responses.create(
             model=os.getenv("OPENAI_MODEL", "gpt-5.5"),
             instructions=(
@@ -37,9 +58,10 @@ def generate_answer(question: str) -> str:
                 "assistant prototype. Provide clear general health "
                 "information. Do not claim to diagnose a patient, "
                 "prescribe medication, or replace a qualified "
-                "healthcare professional."
+                "healthcare professional. Be transparent when the "
+                "provided context is insufficient."
             ),
-            input=question,
+            input=prompt,
         )
 
         return response.output_text
