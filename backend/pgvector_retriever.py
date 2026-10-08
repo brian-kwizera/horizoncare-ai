@@ -2,6 +2,9 @@ from database import get_connection
 from embedding_service import EmbeddingService
 
 
+DEFAULT_MIN_SIMILARITY = 0.60
+
+
 def vector_literal(vector: list[float]) -> str:
     """Convert a Python vector into pgvector's text format."""
     return "[" + ",".join(str(value) for value in vector) + "]"
@@ -10,6 +13,7 @@ def vector_literal(vector: list[float]) -> str:
 def search_vectors(
     query: str,
     top_k: int = 3,
+    min_similarity: float = DEFAULT_MIN_SIMILARITY,
 ) -> list[dict]:
     if not query.strip():
         return []
@@ -35,11 +39,14 @@ def search_vectors(
                 JOIN documents d
                     ON d.id = dc.document_id
                 WHERE dc.embedding IS NOT NULL
+                  AND 1 - (dc.embedding <=> %s::vector) >= %s
                 ORDER BY dc.embedding <=> %s::vector
                 LIMIT %s;
                 """,
                 (
                     query_vector,
+                    query_vector,
+                    min_similarity,
                     query_vector,
                     top_k,
                 ),

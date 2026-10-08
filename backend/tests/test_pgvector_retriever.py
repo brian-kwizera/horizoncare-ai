@@ -18,4 +18,20 @@ def test_pgvector_finds_malaria():
 
     assert len(results) >= 1
     assert results[0]["filename"] == "malaria.md"
-    assert results[0]["similarity"] > 0
+    assert results[0]["similarity"] >= 0.60
+
+
+def test_pgvector_rejects_unrelated_question():
+    initialize_database()
+
+    ingest_document(
+        filename="malaria.md",
+        title="Malaria",
+        source="World Health Organization",
+    )
+
+    results = search_vectors(
+        "What are the rules for scoring a football goal?"
+    )
+
+    assert results == []
