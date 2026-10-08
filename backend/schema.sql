@@ -1,4 +1,6 @@
-    CREATE TABLE IF NOT EXISTS documents (
+CREATE EXTENSION IF NOT EXISTS vector;
+
+CREATE TABLE IF NOT EXISTS documents (
     id SERIAL PRIMARY KEY,
     filename TEXT NOT NULL UNIQUE,
     title TEXT,
@@ -11,5 +13,9 @@ CREATE TABLE IF NOT EXISTS document_chunks (
     document_id INTEGER NOT NULL REFERENCES documents(id) ON DELETE CASCADE,
     chunk_id TEXT NOT NULL UNIQUE,
     content TEXT NOT NULL,
+    embedding vector(384),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
+
+ALTER TABLE document_chunks
+ADD COLUMN IF NOT EXISTS embedding vector(384);

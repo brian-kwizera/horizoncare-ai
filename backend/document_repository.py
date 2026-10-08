@@ -32,19 +32,32 @@ def save_chunk(
     document_id: int,
     chunk_id: str,
     content: str,
+    embedding: list[float] | None = None,
 ) -> None:
+    embedding_value = (
+        str(embedding)
+        if embedding is not None
+        else None
+    )
+
     with get_connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
                 """
                 INSERT INTO document_chunks
-                    (document_id, chunk_id, content)
-                VALUES (%s, %s, %s)
+                    (document_id, chunk_id, content, embedding)
+                VALUES (%s, %s, %s, %s::vector)
                 ON CONFLICT (chunk_id)
                 DO UPDATE SET
-                    content = EXCLUDED.content;
+                    content = EXCLUDED.content,
+                    embedding = EXCLUDED.embedding;
                 """,
-                (document_id, chunk_id, content),
+                (
+                    document_id,
+                    chunk_id,
+                    content,
+                    embedding_value,
+                ),
             )
 
         connection.commit()
