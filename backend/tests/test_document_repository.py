@@ -44,3 +44,13 @@ def test_save_document_and_chunk():
     assert row[1] == "test.md:0"
     assert row[2] == "This is a test chunk."
     assert row[3].startswith("[0.1")
+    
+    # Clean up test data
+    with get_connection() as connection:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "DELETE FROM documents WHERE filename = %s;",
+                ("test.md",),
+            )
+
+        connection.commit()

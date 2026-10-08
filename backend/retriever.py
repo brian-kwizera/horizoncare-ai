@@ -1,4 +1,4 @@
-from database_retriever import search_database
+from pgvector_retriever import search_vectors
 
 
 class KnowledgeRetriever:
@@ -7,7 +7,7 @@ class KnowledgeRetriever:
         query: str,
         top_k: int = 3,
     ) -> list[dict]:
-        return search_database(
+        return search_vectors(
             query,
             top_k=top_k,
         )
