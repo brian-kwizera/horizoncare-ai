@@ -5,20 +5,23 @@ def save_document(
     filename: str,
     title: str,
     source: str,
+    url: str | None = None,
 ) -> int:
     with get_connection() as connection:
         with connection.cursor() as cursor:
             cursor.execute(
                 """
-                INSERT INTO documents (filename, title, source)
-                VALUES (%s, %s, %s)
+                INSERT INTO documents
+                    (filename, title, source, url)
+                VALUES (%s, %s, %s, %s)
                 ON CONFLICT (filename)
                 DO UPDATE SET
                     title = EXCLUDED.title,
-                    source = EXCLUDED.source
+                    source = EXCLUDED.source,
+                    url = EXCLUDED.url
                 RETURNING id;
                 """,
-                (filename, title, source),
+                (filename, title, source, url),
             )
 
             document_id = cursor.fetchone()[0]

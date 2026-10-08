@@ -1,4 +1,6 @@
 from fastapi.testclient import TestClient
+from database_setup import initialize_database
+from knowledge_ingestion import ingest_document
 
 from main import app
 
@@ -13,6 +15,7 @@ def test_home():
     assert response.json() == {
         "message": "HorizonCare AI is running"
     }
+
 
 def test_ask_unrelated_question():
     response = client.post(
@@ -29,7 +32,17 @@ def test_ask_unrelated_question():
     assert data["sources"] == []
     assert "does not have enough relevant evidence" in data["answer"]
 
+
 def test_ask():
+    initialize_database()
+
+    ingest_document(
+        filename="malaria.md",
+        title="Malaria",
+        source="World Health Organization",
+        url="https://www.who.int/health-topics/malaria",
+    )
+
     response = client.post(
         "/ask",
         json={
@@ -44,4 +57,12 @@ def test_ask():
     assert data["question"] == "What are the common symptoms of malaria?"
     assert "answer" in data
     assert "sources" in data
-    assert "malaria.md" in data["sources"]  
+
+    source = data["sources"][0]
+
+    assert source["title"] == "Malaria"
+    assert source["publisher"] == "World Health Organization"
+    assert source["url"] == (
+        "https://www.who.int/health-topics/malaria"
+    )
+    assert source["similarity"] >= 0.60

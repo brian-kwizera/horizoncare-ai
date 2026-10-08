@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS documents (
     filename TEXT NOT NULL UNIQUE,
     title TEXT,
     source TEXT,
+    url TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -19,3 +20,5 @@ CREATE TABLE IF NOT EXISTS document_chunks (
 
 ALTER TABLE document_chunks
 ADD COLUMN IF NOT EXISTS embedding vector(384);
+ALTER TABLE documents
+ADD COLUMN IF NOT EXISTS url TEXT;

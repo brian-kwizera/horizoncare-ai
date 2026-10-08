@@ -3,11 +3,11 @@ from document_loader import load_documents
 from document_repository import save_chunk, save_document
 from embedding_service import EmbeddingService
 
-
 def ingest_document(
     filename: str,
     title: str,
     source: str,
+    url: str | None = None,
 ) -> int:
     documents = load_documents()
 
@@ -26,10 +26,11 @@ def ingest_document(
         )
 
     document_id = save_document(
-        filename=filename,
-        title=title,
-        source=source,
-    )
+    filename=filename,
+    title=title,
+    source=source,
+    url=url,
+)
 
     chunks = chunk_documents([document])
 

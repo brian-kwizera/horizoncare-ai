@@ -43,10 +43,15 @@ def ask_question(request: QuestionRequest):
 
         if results:
             context = "\n\n".join(
-                f"Source: {result['filename']}\n"
-                f"{result['content']}"
-                for result in results[:3]
-            )
+    (
+        f"Title: {result['title']}\n"
+        f"Publisher: {result['source']}\n"
+        f"URL: {result['url']}\n"
+        f"Similarity: {result['similarity']:.4f}\n"
+        f"Content: {result['content']}"
+    )
+    for result in results[:3]
+)
 
         # Generate the response
         answer = generate_answer(
@@ -56,9 +61,14 @@ def ask_question(request: QuestionRequest):
 
         # Return the sources used
         sources = [
-            result["filename"]
-            for result in results[:3]
-        ]
+    {
+        "title": result["title"],
+        "publisher": result["source"],
+        "url": result["url"],
+        "similarity": round(result["similarity"], 4),
+    }
+    for result in results[:3]
+]
 
         return {
             "question": request.question,

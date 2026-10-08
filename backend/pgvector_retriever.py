@@ -32,6 +32,7 @@ def search_vectors(
                     d.filename,
                     d.title,
                     d.source,
+                    d.url,
                     dc.content,
                     1 - (dc.embedding <=> %s::vector)
                         AS similarity
@@ -60,8 +61,9 @@ def search_vectors(
             "filename": row[1],
             "title": row[2],
             "source": row[3],
-            "content": row[4],
-            "similarity": float(row[5]),
+            "url": row[4],
+            "content": row[5],
+            "similarity": float(row[6]),
         }
         for row in rows
     ]
