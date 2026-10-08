@@ -3,32 +3,56 @@ import os
 from openai import OpenAI
 
 
+def build_grounded_prompt(
+    question: str,
+    context: str,
+) -> str:
+    return f"""
+Use ONLY the healthcare information provided in the
+KNOWLEDGE CONTEXT below to answer the user's question.
+
+Rules:
+- Do not invent information that is not supported by the context.
+- If the context does not contain enough information to answer,
+  clearly say that the available knowledge base does not provide
+  enough information.
+- Do not diagnose the patient.
+- Do not prescribe medication.
+- Do not replace a qualified healthcare professional.
+
+KNOWLEDGE CONTEXT:
+{context}
+
+USER QUESTION:
+{question}
+""".strip()
+
+
 def generate_answer(
     question: str,
     context: str = "",
 ) -> str:
     """
-    Generate an answer using the configured AI mode.
+    Generate an evidence-grounded answer.
 
-    AI_MODE=mock  -> local response, no API call
+    AI_MODE=mock   -> local evidence response
     AI_MODE=openai -> use OpenAI API
     """
 
     mode = os.getenv("AI_MODE", "mock").lower()
 
-    if mode == "mock":
-        if context:
-            return (
-                "HorizonCare found relevant information in its "
-                "knowledge base.\n\n"
-                f"Question: {question}\n\n"
-                f"Retrieved information:\n{context}"
-            )
-
+    if not context.strip():
         return (
-            "HorizonCare is currently running in local mock mode. "
-            "No relevant knowledge was found.\n\n"
-            f"Your question was: {question}"
+            "HorizonCare does not have enough relevant evidence "
+            "in its knowledge base to answer this question."
+        )
+
+    if mode == "mock":
+        return (
+            "HorizonCare found supporting information in its "
+            "knowledge base.\n\n"
+            f"Question: {question}\n\n"
+            f"Evidence:\n{context}"
         )
 
     if mode == "openai":
@@ -41,27 +65,19 @@ def generate_answer(
 
         client = OpenAI(api_key=api_key)
 
-        prompt = question
-
-        if context:
-            prompt = (
-                "Use the following retrieved healthcare information "
-                "as context when answering the user's question.\n\n"
-                f"CONTEXT:\n{context}\n\n"
-                f"QUESTION:\n{question}"
-            )
-
         response = client.responses.create(
             model=os.getenv("OPENAI_MODEL", "gpt-5.5"),
             instructions=(
                 "You are HorizonCare AI, a healthcare information "
-                "assistant prototype. Provide clear general health "
-                "information. Do not claim to diagnose a patient, "
-                "prescribe medication, or replace a qualified "
-                "healthcare professional. Be transparent when the "
-                "provided context is insufficient."
+                "assistant prototype. Answer only from the supplied "
+                "knowledge context. Be transparent when the evidence "
+                "is insufficient. Do not diagnose, prescribe, or "
+                "replace a qualified healthcare professional."
             ),
-            input=prompt,
+            input=build_grounded_prompt(
+                question,
+                context,
+            ),
         )
 
         return response.output_text

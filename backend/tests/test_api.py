@@ -14,6 +14,20 @@ def test_home():
         "message": "HorizonCare AI is running"
     }
 
+def test_ask_unrelated_question():
+    response = client.post(
+        "/ask",
+        json={
+            "question": "What are the rules for scoring a football goal?"
+        },
+    )
+
+    assert response.status_code == 200
+
+    data = response.json()
+
+    assert data["sources"] == []
+    assert "does not have enough relevant evidence" in data["answer"]
 
 def test_ask():
     response = client.post(
