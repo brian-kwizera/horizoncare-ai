@@ -1,7 +1,7 @@
 from fastapi.testclient import TestClient
+
 from database_setup import initialize_database
 from knowledge_ingestion import ingest_document
-
 from main import app
 
 
@@ -30,6 +30,7 @@ def test_ask_unrelated_question():
     data = response.json()
 
     assert data["sources"] == []
+    assert data["evidence"] == []
     assert "does not have enough relevant evidence" in data["answer"]
 
 
@@ -57,6 +58,14 @@ def test_ask():
     assert data["question"] == "What are the common symptoms of malaria?"
     assert "answer" in data
     assert "sources" in data
+    assert "evidence" in data
+
+    # The mock answer must not pretend to be AI-generated.
+    assert "Mock mode is enabled" in data["answer"]
+    assert "Malaria is an infectious disease" not in data["answer"]
+
+    # Verify the source metadata.
+    assert len(data["sources"]) >= 1
 
     source = data["sources"][0]
 
@@ -66,3 +75,12 @@ def test_ask():
         "https://www.who.int/health-topics/malaria"
     )
     assert source["similarity"] >= 0.60
+
+    # Verify evidence is separate from the answer.
+    assert len(data["evidence"]) >= 1
+
+    passage = data["evidence"][0]
+
+    assert passage["filename"] == "malaria.md"
+    assert passage["content"]
+    assert passage["similarity"] >= 0.60

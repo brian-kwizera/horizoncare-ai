@@ -28,56 +28,72 @@ def ask_question(request: QuestionRequest):
     if not request.question.strip():
         raise HTTPException(
             status_code=400,
-            detail="Question cannot be empty."
+            detail="Question cannot be empty.",
         )
 
     try:
-        # Search the HorizonCare knowledge base
         results = retriever.search(
-    request.question,
-    top_k=3,
-)
+            request.question,
+            top_k=3,
+        )
 
-        # Build context for the AI service
-        context = ""
+        # Build context for the answer generator.
+        context = "\n\n".join(
+            (
+                f"Title: {result['title']}\n"
+                f"Publisher: {result['source']}\n"
+                f"URL: {result.get('url') or 'Not provided'}\n"
+                f"Content: {result['content']}"
+            )
+            for result in results
+        )
 
-        if results:
-            context = "\n\n".join(
-    (
-        f"Title: {result['title']}\n"
-        f"Publisher: {result['source']}\n"
-        f"URL: {result['url']}\n"
-        f"Similarity: {result['similarity']:.4f}\n"
-        f"Content: {result['content']}"
-    )
-    for result in results[:3]
-)
-
-        # Generate the response
         answer = generate_answer(
             request.question,
             context,
         )
 
-        # Return the sources used
-        sources = [
-    {
-        "title": result["title"],
-        "publisher": result["source"],
-        "url": result["url"],
-        "similarity": round(result["similarity"], 4),
-    }
-    for result in results[:3]
-]
+        # Keep retrieved evidence separate from the answer.
+        evidence = [
+            {
+                "chunk_id": result["chunk_id"],
+                "filename": result["filename"],
+                "content": result["content"],
+                "similarity": round(
+                    float(result["similarity"]), 4
+                ),
+            }
+            for result in results
+        ]
+
+        # Deduplicate citations when multiple chunks come
+        # from the same source document.
+        source_map = {}
+
+        for result in results:
+            source_key = (
+                result.get("url") or result["filename"]
+            )
+
+            if source_key not in source_map:
+                source_map[source_key] = {
+                    "title": result["title"],
+                    "publisher": result["source"],
+                    "url": result.get("url"),
+                    "similarity": round(
+                        float(result["similarity"]), 4
+                    ),
+                }
 
         return {
             "question": request.question,
             "answer": answer,
-            "sources": sources,
+            "sources": list(source_map.values()),
+            "evidence": evidence,
         }
 
     except Exception as error:
         raise HTTPException(
             status_code=500,
-            detail=f"AI request failed: {str(error)}"
+            detail=f"AI request failed: {error}",
         )

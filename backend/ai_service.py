@@ -48,12 +48,10 @@ def generate_answer(
         )
 
     if mode == "mock":
-        return (
-            "HorizonCare found supporting information in its "
-            "knowledge base.\n\n"
-            f"Question: {question}\n\n"
-            f"Evidence:\n{context}"
-        )
+     return (
+        "Mock mode is enabled. Relevant evidence was retrieved, "
+        "but no AI-generated summary was produced."
+    )
 
     if mode == "openai":
         api_key = os.getenv("OPENAI_API_KEY")
