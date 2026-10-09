@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 from ai_service import generate_answer
 from retriever import KnowledgeRetriever
+from response_models import AskResponse
 
 
 load_dotenv()
@@ -23,7 +24,7 @@ def home():
     }
 
 
-@app.post("/ask")
+@app.post("/ask", response_model=AskResponse)
 def ask_question(request: QuestionRequest):
     if not request.question.strip():
         raise HTTPException(
