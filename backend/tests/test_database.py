@@ -7,4 +7,4 @@ def test_database_connection():
             cursor.execute("SELECT current_database();")
             database_name = cursor.fetchone()[0]
 
-    assert database_name == "horizoncare"
+    assert database_name == "horizoncare_test"

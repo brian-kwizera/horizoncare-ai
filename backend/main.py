@@ -6,7 +6,7 @@ from ai_service import generate_answer
 from retriever import KnowledgeRetriever
 
 
-load_dotenv(override=True)
+load_dotenv()
 
 app = FastAPI(title="HorizonCare AI")
 retriever = KnowledgeRetriever()

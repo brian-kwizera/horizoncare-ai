@@ -4,7 +4,7 @@ import psycopg
 from dotenv import load_dotenv
 
 
-load_dotenv(override=True)
+load_dotenv()
 
 
 def get_connection():
