@@ -18,6 +18,17 @@ def test_home():
 
 
 def test_ask_unrelated_question():
+    initialize_database()
+
+    # Ensure the knowledge base contains medical information.
+    ingest_document(
+        filename="malaria.md",
+        title="Malaria",
+        source="World Health Organization",
+        url="https://www.who.int/health-topics/malaria",
+    )
+
+    # Ask a question unrelated to the available medical document.
     response = client.post(
         "/ask",
         json={
@@ -31,7 +42,10 @@ def test_ask_unrelated_question():
 
     assert data["sources"] == []
     assert data["evidence"] == []
-    assert "does not have enough relevant evidence" in data["answer"]
+    assert (
+        "does not have enough relevant evidence"
+        in data["answer"]
+    )
 
 
 def test_ask():
