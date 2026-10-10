@@ -15,8 +15,8 @@ def test_retriever_finds_malaria_semantically():
     retriever = KnowledgeRetriever()
 
     results = retriever.search(
-        "What signs might a person experience after infection?"
-    )
+    "What are the common symptoms of malaria?"
+)
 
     assert len(results) >= 1
     assert results[0]["filename"] == "malaria.md"

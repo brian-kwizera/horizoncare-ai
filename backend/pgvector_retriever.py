@@ -2,7 +2,7 @@ from database import get_connection
 from embedding_service import EmbeddingService
 
 
-DEFAULT_MIN_SIMILARITY = 0.60
+DEFAULT_MIN_SIMILARITY = 0.72
 
 
 def vector_literal(vector: list[float]) -> str:
