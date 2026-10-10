@@ -71,3 +71,29 @@ def test_malaria_query_excludes_dengue_chunks():
         result["similarity"] >= 0.72
         for result in results
     )
+
+def test_dengue_evidence_includes_adjacent_context():
+    initialize_database()
+
+    ingest_document(
+        filename="dengue.md",
+        title="Dengue",
+        source="World Health Organization",
+        url=(
+            "https://www.who.int/en/news-room/fact-sheets/"
+            "detail/dengue-and-severe-dengue"
+        ),
+    )
+
+    results = search_vectors(
+        "What are the warning signs of severe dengue?"
+    )
+
+    assert results
+    assert results[0]["filename"] == "dengue.md"
+
+    content = results[0]["content"]
+
+    assert "Severe abdominal pain" in content
+    assert "Persistent vomiting" in content
+    assert "professional medical care" in content    
