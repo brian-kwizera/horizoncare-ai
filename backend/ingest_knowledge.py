@@ -1,28 +1,9 @@
-from knowledge_ingestion import ingest_document
+from knowledge_ingestion import ingest_all_documents
 
 
-documents = [
-    {
-        "filename": "malaria.md",
-        "title": "Malaria",
-        "source": "World Health Organization",
-        "url": "https://www.who.int/health-topics/malaria",
-    },
-    {
-        "filename": "dengue.md",
-        "title": "Dengue",
-        "source": "World Health Organization",
-        "url": (
-            "https://www.who.int/en/news-room/fact-sheets/"
-            "detail/dengue-and-severe-dengue"
-        ),
-    },
-]
-
-for document in documents:
-    document_id = ingest_document(**document)
-
+if __name__ == "__main__":
+    print("Scanning and ingesting knowledge documents...")
+    document_ids = ingest_all_documents()
     print(
-        f"Ingested {document['filename']} "
-        f"with document ID: {document_id}"
-    )
+        f"Successfully ingested {len(document_ids)} document(s): {document_ids}"
+    )

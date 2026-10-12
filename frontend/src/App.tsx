@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
-
+import ReactMarkdown from "react-markdown";
 type Source = {
   title: string;
   publisher: string;
@@ -415,6 +415,7 @@ function App() {
                                     <details
                                       className="evidence-card"
                                       key={passage.chunk_id}
+                                      open
                                     >
                                       <summary>
                                         <span className="evidence-title">
@@ -428,7 +429,9 @@ function App() {
                                       </summary>
 
                                       <p className="evidence-content">
-                                        {passage.content}
+                                        <ReactMarkdown>
+                                          {passage.content}
+                                          </ReactMarkdown>
                                       </p>
                                     </details>
                                   ))}

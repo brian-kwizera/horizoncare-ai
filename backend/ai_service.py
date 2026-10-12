@@ -48,10 +48,10 @@ def generate_answer(
         )
 
     if mode == "mock":
-     return (
-        "Mock mode is enabled. Relevant evidence was retrieved, "
-        "but no AI-generated summary was produced."
-    )
+        return (
+            "Mock mode is enabled. Relevant evidence was retrieved, "
+            "but no AI-generated summary was produced."
+        )
 
     if mode == "openai":
         api_key = os.getenv("OPENAI_API_KEY")
@@ -62,23 +62,38 @@ def generate_answer(
             )
 
         client = OpenAI(api_key=api_key)
-
-        response = client.responses.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-5.5"),
-            instructions=(
-                "You are HorizonCare AI, a healthcare information "
-                "assistant prototype. Answer only from the supplied "
-                "knowledge context. Be transparent when the evidence "
-                "is insufficient. Do not diagnose, prescribe, or "
-                "replace a qualified healthcare professional."
-            ),
-            input=build_grounded_prompt(
-                question,
-                context,
-            ),
+        model = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        instructions = (
+            "You are HorizonCare AI, a healthcare information "
+            "assistant prototype. Answer only from the supplied "
+            "knowledge context. Be transparent when the evidence "
+            "is insufficient. Do not diagnose, prescribe, or "
+            "replace a qualified healthcare professional."
+        )
+        prompt = build_grounded_prompt(
+            question,
+            context,
         )
 
-        return response.output_text
+        if hasattr(client, "chat") and hasattr(client.chat, "completions"):
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": instructions},
+                    {"role": "user", "content": prompt},
+                ],
+            )
+            return response.choices[0].message.content or ""
+
+        if hasattr(client, "responses"):
+            response = client.responses.create(
+                model=model,
+                instructions=instructions,
+                input=prompt,
+            )
+            return response.output_text
+
+        raise RuntimeError("OpenAI client does not support chat or responses API.")
 
     raise ValueError(
         f"Unsupported AI_MODE: {mode}. "

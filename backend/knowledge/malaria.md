@@ -1,3 +1,12 @@
+---
+title: "Malaria"
+publisher: "World Health Organization"
+source_url: "https://www.who.int/health-topics/malaria"
+publication_year: 2023
+topics:
+  - "Malaria"
+  - "Infectious Diseases"
+---
 # Malaria — HorizonCare Knowledge Entry
 
 ## Topic

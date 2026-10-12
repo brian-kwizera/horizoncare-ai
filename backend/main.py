@@ -93,8 +93,10 @@ def ask_question(request: QuestionRequest):
             "evidence": evidence,
         }
 
-    except Exception as error:
+    except HTTPException:
+        raise
+    except Exception:
         raise HTTPException(
             status_code=500,
-            detail=f"AI request failed: {error}",
+            detail="The AI request could not be completed. Please try again later.",
         )

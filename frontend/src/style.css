@@ -2550,3 +2550,32 @@ input {
 }
 
 
+/* Evidence text — compact and easy to read */
+.evidence-content {
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+  font-weight: 400 !important;
+  overflow-wrap: anywhere;
+}
+
+.evidence-content h1,
+.evidence-content h2,
+.evidence-content h3 {
+  font-size: 16px !important;
+  line-height: 1.4 !important;
+  font-weight: 700 !important;
+  margin: 12px 0 6px !important;
+}
+
+.evidence-content p,
+.evidence-content li {
+  font-size: 14px !important;
+  line-height: 1.65 !important;
+}
+
+.evidence-content ul,
+.evidence-content ol {
+  padding-left: 22px;
+}
+
+

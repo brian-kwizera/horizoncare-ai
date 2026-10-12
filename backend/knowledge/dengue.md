@@ -1,3 +1,12 @@
+---
+title: "Dengue"
+publisher: "World Health Organization"
+source_url: "https://www.who.int/en/news-room/fact-sheets/detail/dengue-and-severe-dengue"
+publication_year: 2024
+topics:
+  - "Dengue"
+  - "Vector-borne Diseases"
+---
 # Dengue — HorizonCare Knowledge Entry
 
 ## Topic
